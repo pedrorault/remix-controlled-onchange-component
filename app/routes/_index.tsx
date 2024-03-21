@@ -49,30 +49,21 @@ export default function Index() {
       <hr />
 
       <Form style={{ width: "200px" }}>
-        <input type="text" id="name" name="name" placeholder="Name" />
-        <input
-          hidden
-          type="text"
-          name="beatles"
-          id="beatles"
-          ref={beatlesRef}
-        />
+        <button hidden type="submit" ref={submit} />
+        <input hidden name="beatles" id="beatles" ref={beatlesRef} />
+        <input id="name" name="name" placeholder="Name" />
         <Select
           options={options}
           defaultValue={{ value: beatles, label: beatles }}
           onChange={(e) => {
             if (beatlesRef.current) {
-              beatlesRef.current.value = e.value;
+              beatlesRef.current.value = e?.value || "";
             }
             if (submit && submit.current) {
               submit.current.click();
             }
           }}
         />
-
-        <button type="submit" ref={submit}>
-          Submit
-        </button>
       </Form>
     </div>
   );
