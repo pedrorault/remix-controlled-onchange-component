@@ -1,4 +1,13 @@
-import type { MetaFunction } from "@remix-run/node";
+import {
+  ActionFunction,
+  LoaderFunction,
+  MetaFunction,
+  json,
+} from "@remix-run/node";
+import { Form } from "@remix-run/react";
+import { useLoaderData } from "@remix-run/react/dist/components";
+import { useRef } from "react";
+import Select from "react-select";
 
 export const meta: MetaFunction = () => {
   return [
@@ -7,35 +16,64 @@ export const meta: MetaFunction = () => {
   ];
 };
 
+export const loader: LoaderFunction = ({ request }) => {
+  const url = new URL(request.url);
+  const searchParams = url.searchParams;
+
+  return json({
+    name: searchParams.get("name"),
+    beatles: searchParams.get("beatles"),
+  });
+};
+
+export const action: ActionFunction = () => {
+  return null;
+};
+
 export default function Index() {
+  const options = [
+    { value: "John", label: "John" },
+    { value: "Paul", label: "Paul" },
+    { value: "Ringo", label: "Ringo" },
+    { value: "George", label: "George" },
+  ];
+
+  const { name, beatles } = useLoaderData<typeof loader>();
+  const submit = useRef<HTMLButtonElement>(null);
+
+  const beatlesRef = useRef<HTMLInputElement>(null);
   return (
     <div style={{ fontFamily: "system-ui, sans-serif", lineHeight: "1.8" }}>
-      <h1>Welcome to Remix</h1>
-      <ul>
-        <li>
-          <a
-            target="_blank"
-            href="https://remix.run/tutorials/blog"
-            rel="noreferrer"
-          >
-            15m Quickstart Blog Tutorial
-          </a>
-        </li>
-        <li>
-          <a
-            target="_blank"
-            href="https://remix.run/tutorials/jokes"
-            rel="noreferrer"
-          >
-            Deep Dive Jokes App Tutorial
-          </a>
-        </li>
-        <li>
-          <a target="_blank" href="https://remix.run/docs" rel="noreferrer">
-            Remix Docs
-          </a>
-        </li>
-      </ul>
+      <p>Name: {name}</p>
+      <p>Beatles: {beatles}</p>
+      <hr />
+
+      <Form style={{ width: "200px" }}>
+        <input type="text" id="name" name="name" placeholder="Name" />
+        <input
+          hidden
+          type="text"
+          name="beatles"
+          id="beatles"
+          ref={beatlesRef}
+        />
+        <Select
+          options={options}
+          defaultValue={{ value: beatles, label: beatles }}
+          onChange={(e) => {
+            if (beatlesRef.current) {
+              beatlesRef.current.value = e.value;
+            }
+            if (submit && submit.current) {
+              submit.current.click();
+            }
+          }}
+        />
+
+        <button type="submit" ref={submit}>
+          Submit
+        </button>
+      </Form>
     </div>
   );
 }
